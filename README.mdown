@@ -1,0 +1,30 @@
+# Boolean millisecond attribute
+
+## What is boolean attribute?
+
+This plugin is based on the idea of boolean_datetime_attribute.  boolean_datetime_attributes works by inferring that a datetime in the column means the value is true, NULL is false.
+It works well except for one thing, if you have a datetime column that is part of a database unique constraint, you will get into a tricky situation where that column could not be used
+ for uniqueness guaranttee, since NULL <> NULL for quite a few databases (Oracle, MySQL).  For example, you have a database
+unique constraint place on
+columnA(Integer), columnB(Integer, columnC(datetime)
+
+You will still be able to create multiple records with
+1, 1, NULL
+1, 1, NULL
+1, 1, NULL
+
+which is not what you would want, this plugin basically take the idea of storing a datetime in a slight different direction.  As opposed to store data in date-time format, it stores data in
+millisecond.  0 means false, all other value means true.  So you can really store any abitrary integer value that you can think of.  In my case, I am going to store miliseconds, since then I can use that
+as date/time information.  You will probably say 0 is Wed Dec 31 18:43:20 -0500 1969 and that using it to signify a false would not be appropriate.  Yes it would be, but then
+for our purpose, we wouldn't ever need to use a date that is dated back to 1969.  Just keep that in mind that if you are going to store mili-seconds, then you won't be able to use the '0' mili-second
+
+## How it works
+
+    class User < ActiveRecord::Base
+        boolean_millisecond_attribute :deleted_at
+    end
+
+# To run test for this plugin
+  rake test:plugins PLUGIN=boolean_millisecond_attribute
+
+Copyright (c) 2010 Han Qiu of [Time](http://www.time.com), released under the MIT license
